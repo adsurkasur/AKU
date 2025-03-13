@@ -116,9 +116,9 @@
         </div>
 
         <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
-        <button onclick="exportToXlsx()" class="btn-export">Export to XLSX</button>
+        <button onclick="exportToXlsx()" class="btn-export">Ekspor ke XLSX</button>
         <input type="file" id="fileInput" accept=".xlsx" style="display: none;" onchange="importFromXlsx(event)">
-        <button onclick="document.getElementById('fileInput').click()" class="btn-import">Import from XLSX</button>
+        <button onclick="document.getElementById('fileInput').click()" class="btn-import">Impor dari XLSX</button>
 
         <h2 class="hasil-analisis">Hasil Analisis</h2>
         <button onclick="toggleFormatBep()" class="btn-toggle">Ubah Format BEP</button>
@@ -131,6 +131,7 @@
             <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
             <tr><td>Payback Period</td><td id="pp">-</td></tr>
             <tr><td>Profit Margin</td><td id="profit-margin">-</td></tr>
+            <p><strong>Metode Perhitungan:</strong> <span id="metode"></span></p>
         </table>
     </div>
 
@@ -163,7 +164,7 @@
                     <tr>
                         <th>Nama</th>
                         <th>Kuantitas</th>
-                        <th>Harga</th>
+                        <th>Harga (Rp)</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -183,7 +184,7 @@
                     <tr>
                         <th>Nama</th>
                         <th>Kuantitas</th>
-                        <th>Harga</th>
+                        <th>Harga (Rp)</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -195,7 +196,7 @@
 
     <!-- Footer -->
     <footer class="text-center mt-5 text-gray-700">
-        <p>Created by adsurkasur (with AI)</p>
+        <p>Dibuat oleh adsurkasur (dengan bantuan AI)</p>
         <div class="footer-icons flex justify-center mt-2 space-x-3">
             <a href="https://twitter.com/adsurkasur" target="_blank">
                 <i class="fab fa-x-twitter"></i> <!-- Ikon Twitter sesuai referensi -->

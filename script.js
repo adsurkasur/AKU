@@ -11,23 +11,49 @@ function toggleFormatBep() {
 function hitungAnalisis() {
     let investment = getValue("investment");
     let operational = getValue("operational");
-    let cost = getValue("biayaProduksi");
+    let cost = getValue("biayaProduksi"); // Perbaikan variabel
     let volume = getValue("volume");
     let markup = parseFloat(document.getElementById("markup").value);
 
-    // Validasi input: tidak boleh kosong atau negatif
+    // Validasi input
     if (
         isNaN(investment) || isNaN(operational) || isNaN(cost) || 
         isNaN(volume) || isNaN(markup) || 
-        investment <= 0 || operational < 0 ||
-        cost < 0 || volume <= 0 || markup < 0
+        investment < 0 || operational < 0 || cost < 0 || 
+        volume < 0 || markup < 0
     ) {
-        alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif atau kosong.");
+        alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif.");
+        return;
+    }
+
+    // Jika pendekatan investment cost digunakan tetapi volume kosong
+    if (investment > 0 && (isNaN(volume) || volume <= 0)) {
+        alert("Harap masukkan volume penjualan untuk menghitung analisis dengan investment cost.");
+        return;
+    }
+
+    // **Validasi volume hanya jika pakai pendekatan biaya produksi**
+    if (cost > 0 && volume === 0) {
+        alert("Jika menggunakan biaya produksi, volume tidak boleh 0!");
         return;
     }
 
     // Hitung Harga Pokok Produksi (HPP)
-    let hpp = (cost * volume + operational) / volume;
+    let hpp, metode;
+
+    // **Logika Otomatis**
+    if (cost > 0) {
+        // **Gunakan pendekatan biaya produksi**
+        hpp = (cost * volume + operational) / volume;
+        metode = "Menggunakan perhitungan berdasarkan biaya produksi per unit & volume.";
+    } else if (investment > 0) {
+        // **Gunakan pendekatan investment cost** (volume tidak dipakai)
+        hpp = (investment + operational); // Hanya biaya total
+        metode = "Menggunakan perhitungan berdasarkan investment cost.";
+    } else {
+        alert("Harap isi biaya produksi atau investment cost!");
+        return;
+    }
 
     // Hitung Harga Jual berdasarkan markup
     let hargaJual = hpp * (1 + (markup / 100));
@@ -38,34 +64,33 @@ function hitungAnalisis() {
         return;
     }
 
-    // Hitung Profit
-    let profit = (hargaJual - hpp) * volume;
-
-    // Hitung Revenue (Pendapatan)
-    let revenue = hargaJual * volume; 
+    // **Jika volume tersedia, hitung Revenue & Profit**
+    let profit = volume > 0 ? (hargaJual - hpp) * volume : "Tidak tersedia";
+    let revenue = volume > 0 ? hargaJual * volume : "Tidak tersedia"; 
 
     // Hitung Profit Margin
-    let profitMargin = revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
+    let profitMargin = volume > 0 && revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
 
     // Hitung ROI (Return on Investment)
-    let roi = investment > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
+    let roi = investment > 0 && volume > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
 
-    // Hitung Break Even Point (BEP)
-    let bepUnit = hargaJual > hpp ? (investment / (hargaJual - hpp)).toFixed(2) : "Tidak valid";
-    let bepRupiah = hargaJual > hpp ? formatRupiah(investment / (hargaJual - hpp) * hargaJual) : "Tidak valid";
+    // Hitung Break Even Point (BEP) hanya jika volume tersedia
+    let bepUnit = volume > 0 && hargaJual > hpp ? (investment / (hargaJual - hpp)).toFixed(2) : "Tidak valid";
+    let bepRupiah = volume > 0 && hargaJual > hpp ? formatRupiah(investment / (hargaJual - hpp) * hargaJual) : "Tidak valid";
 
-    // Hitung Payback Period (PP)
-    let pp = profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
+    // Hitung Payback Period (PP) hanya jika profit tersedia
+    let pp = volume > 0 && profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
     // Tampilkan hasil perhitungan
     setText("hargaJual", formatRupiah(hargaJual));
-    setText("revenue", formatRupiah(revenue));
-    setText("profit", formatRupiah(profit));
-    setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
+    setText("revenue", revenue !== "Tidak tersedia" ? formatRupiah(revenue) : revenue);
+    setText("profit", profit !== "Tidak tersedia" ? formatRupiah(profit) : profit);
+    setText("bep", volume > 0 ? `${bepUnit} unit` : "Tidak tersedia");
     setText("hpp", formatRupiah(hpp));
     setText("roi", roi);
     setText("pp", pp);
     setText("profit-margin", profitMargin);
+    setText("metode", metode); // Tampilkan metode yang digunakan
 }
 
 // Fungsi untuk format Rupiah
@@ -189,27 +214,32 @@ function exportToXlsx() {
     let wb = XLSX.utils.book_new();
     let ws_data = [
         ["Parameter", "Value"],
-        ["Harga Pokok Produksi (HPP) per unit", document.getElementById("hpp").textContent],
-        ["Harga Jual per Unit", document.getElementById("hargaJual").textContent],
-        ["Revenue (Pendapatan)", document.getElementById("revenue").textContent],
-        ["Profit (Laba Bersih)", document.getElementById("profit").textContent],
-        ["ROI (Return on Investment)", document.getElementById("roi").textContent],
-        ["BEP (Break Even Point)", document.getElementById("bep").textContent],
-        ["Payback Period", document.getElementById("pp").textContent],
-        ["Profit Margin", document.getElementById("profit-margin").textContent]
+        ["Investment Cost", getValue("investment")],
+        ["Operational Cost per Bulan", getValue("operational")],
+        ["Biaya Produksi per Unit", getValue("biayaProduksi")],
+        ["Volume Penjualan per Bulan", getValue("volume")],
+        ["Markup (%)", getValue("markup")],
+        ["Harga Pokok Produksi (HPP) per unit", ""],
+        ["Harga Jual per Unit", ""],
+        ["Revenue (Pendapatan)", ""],
+        ["Profit (Laba Bersih)", ""],
+        ["ROI (Return on Investment)", ""],
+        ["BEP (Break Even Point)", ""],
+        ["Payback Period", ""],
+        ["Profit Margin", ""]
     ];
 
     let ws = XLSX.utils.aoa_to_sheet(ws_data);
 
     // Add formulas to the worksheet
-    ws['B2'].f = `(${getValue("biayaProduksi")} * ${getValue("volume")} + ${getValue("operational")}) / ${getValue("volume")}`;
-    ws['B3'].f = `B2 * (1 + ${parseFloat(document.getElementById("markup").value) / 100})`;
-    ws['B4'].f = `B3 * ${getValue("volume")}`;
-    ws['B5'].f = `(B3 - B2) * ${getValue("volume")}`;
-    ws['B6'].f = `B5 / ${getValue("investment")} * 100`;
-    ws['B7'].f = `${getValue("investment")} / (B3 - B2)`;
-    ws['B8'].f = `${getValue("investment")} / B5`;
-    ws['B9'].f = `B5 / B4 * 100`;
+    ws['B7'].f = `B3 + B4 / B5`; // HPP per unit
+    ws['B8'].f = `B7 * (1 + B6 / 100)`; // Harga Jual per Unit
+    ws['B9'].f = `B8 * B5`; // Revenue
+    ws['B10'].f = `(B8 - B7) * B5`; // Profit
+    ws['B11'].f = `B10 / B2 * 100`; // ROI
+    ws['B12'].f = `B2 / (B8 - B7)`; // BEP
+    ws['B13'].f = `B2 / B10`; // Payback Period
+    ws['B14'].f = `B10 / B9 * 100`; // Profit Margin
 
     // Append the worksheet to the workbook
     XLSX.utils.book_append_sheet(wb, ws, "Hasil Analisis");
@@ -239,16 +269,43 @@ function importFromXlsx(event) {
 
         // Update the form fields with the imported data
         if (jsonData.length > 1) {
-            setText("hpp", jsonData[1][1]);
-            setText("hargaJual", jsonData[2][1]);
-            setText("revenue", jsonData[3][1]);
-            setText("profit", jsonData[4][1]);
-            setText("roi", jsonData[5][1]);
-            setText("bep", jsonData[6][1]);
-            setText("pp", jsonData[7][1]);
-            setText("profit-margin", jsonData[8][1]);
+            setInputValue("investment", jsonData[1][1]);
+            setInputValue("operational", jsonData[2][1]);
+            setInputValue("biayaProduksi", jsonData[3][1]);
+            setInputValue("volume", jsonData[4][1]);
+            setInputValue("markup", jsonData[5][1]);
+            setText("hpp", jsonData[6][1]);
+            setText("hargaJual", jsonData[7][1]);
+            setText("revenue", jsonData[8][1]);
+            setText("profit", jsonData[9][1]);
+            setText("roi", jsonData[10][1]);
+            setText("bep", jsonData[11][1]);
+            setText("pp", jsonData[12][1]);
+            setText("profit-margin", jsonData[13][1]);
         }
     };
 
     reader.readAsArrayBuffer(file);
+}
+
+// Helper function to get the value of an input field by its ID
+function getValue(id) {
+    let el = document.getElementById(id);
+    return el ? parseFloat(el.value) || 0 : 0;
+}
+
+// Helper function to set the value of an input field by its ID
+function setInputValue(id, value) {
+    let el = document.getElementById(id);
+    if (el) {
+        el.value = value;
+    }
+}
+
+// Helper function to set the text content of an element by its ID
+function setText(id, text) {
+    let el = document.getElementById(id);
+    if (el) {
+        el.textContent = text;
+    }
 }
