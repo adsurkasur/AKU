@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKU - Analisis Kelayakan Usaha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        AKU - Analisis Kelayakan Usaha
+    </header>
+
+    <div class="container">
+        <h2>Input Data</h2>
+
+        <div class="form-group">
+            <label>Investment Cost 
+                <button class="info-btn" data-info="Investment Cost adalah biaya awal yang diperlukan untuk memulai usaha.">ⓘ</button>
+            </label>
+            <input type="number" id="investment" readonly>
+        </div>
+        
+        <div class="form-group">
+            <label>Operational Cost 
+                <button class="info-btn" data-info="Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan usaha.">ⓘ</button>
+            </label>
+            <input type="number" id="operational" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Harga Jual per Unit 
+                <button class="info-btn" data-info="Harga jual per unit adalah harga yang ditetapkan untuk satu produk.">ⓘ</button>
+            </label>
+            <input type="number" id="price">
+        </div>
+
+        <div class="form-group">
+            <label>Biaya Produksi per Unit 
+                <button class="info-btn" data-info="Biaya produksi per unit adalah biaya yang dikeluarkan untuk membuat satu unit produk.">ⓘ</button>
+            </label>
+            <input type="number" id="cost">
+        </div>
+
+        <div class="form-group">
+            <label>Volume Penjualan per Bulan 
+                <button class="info-btn" data-info="Volume penjualan per bulan adalah jumlah produk yang dijual setiap bulan.">ⓘ</button>
+            </label>
+            <input type="number" id="volume">
+        </div>
+
+        <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
+    </div>
+
+    <div class="container">
+        <h2>Hasil Analisis</h2>
+        <table>
+            <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
+            <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
+            <tr><td>HPP (Harga Pokok Produksi)</td><td id="hpp">-</td></tr>
+            <tr><td>Profit Margin</td><td id="profit">-</td></tr>
+        </table>
+    </div>
+
+    <!-- Pop-up -->
+    <div id="popup">
+        <div id="popup-content">
+            <span id="close-popup"><i class="fas fa-times"></i></span>
+            <p id="popup-text"></p>
+        </div>
+    </div>
+
+    <!-- Pop-up Info -->
+    <div id="popupInfo" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg relative">
+            <button id="closePopup" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
+                <i class="fas fa-xmark"></i> <!-- Ikon "X" -->
+            </button>
+            <p id="popupText">Isi informasi di sini...</p>
+        </div>
+    </div>
+
+    <!-- Pop-up Tabel -->
+    <div id="tablePopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeTablePopup()">&times;</span>
+            <h2 id="popupTitle"></h2>
+            <table id="costTable">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kuantitas</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="addRow()">Tambah Baris</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-5 text-gray-700">
+        <p>Created by adsurkasur (with AI)</p>
+        <div class="footer-icons flex justify-center mt-2 space-x-3">
+            <a href="https://twitter.com/adsurkasur" target="_blank">
+                <i class="fab fa-x-twitter"></i> <!-- Ikon Twitter sesuai referensi -->
+            </a>
+            <a href="https://github.com/adsurkasur" target="_blank">
+                <i class="fab fa-github"></i> <!-- Ikon GitHub -->
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

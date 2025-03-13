@@ -1,0 +1,430 @@
+// index.html
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AKU - Analisis Kelayakan Usaha</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <header>
+        AKU - Analisis Kelayakan Usaha
+    </header>
+
+    <div class="container">
+        <h2>Input Data</h2>
+
+        <div class="form-group">
+            <label>Investment Cost 
+                <button class="info-btn" data-info="Investment Cost adalah biaya awal yang diperlukan untuk memulai usaha.">ⓘ</button>
+            </label>
+            <input type="number" id="investment" readonly>
+        </div>
+        
+        <div class="form-group">
+            <label>Operational Cost 
+                <button class="info-btn" data-info="Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan usaha.">ⓘ</button>
+            </label>
+            <input type="number" id="operational" readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Harga Jual per Unit 
+                <button class="info-btn" data-info="Harga jual per unit adalah harga yang ditetapkan untuk satu produk.">ⓘ</button>
+            </label>
+            <input type="number" id="price">
+        </div>
+
+        <div class="form-group">
+            <label>Biaya Produksi per Unit 
+                <button class="info-btn" data-info="Biaya produksi per unit adalah biaya yang dikeluarkan untuk membuat satu unit produk.">ⓘ</button>
+            </label>
+            <input type="number" id="cost">
+        </div>
+
+        <div class="form-group">
+            <label>Volume Penjualan per Bulan 
+                <button class="info-btn" data-info="Volume penjualan per bulan adalah jumlah produk yang dijual setiap bulan.">ⓘ</button>
+            </label>
+            <input type="number" id="volume">
+        </div>
+
+        <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
+    </div>
+
+    <div class="container">
+        <h2>Hasil Analisis</h2>
+        <table>
+            <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
+            <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
+            <tr><td>HPP (Harga Pokok Produksi)</td><td id="hpp">-</td></tr>
+            <tr><td>Profit Margin</td><td id="profit">-</td></tr>
+        </table>
+    </div>
+
+    <!-- Pop-up -->
+    <div id="popup">
+        <div id="popup-content">
+            <span id="close-popup"><i class="fas fa-times"></i></span>
+            <p id="popup-text"></p>
+        </div>
+    </div>
+
+    <!-- Pop-up Info -->
+    <div id="popupInfo" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg relative">
+            <button id="closePopup" class="absolute top-2 right-2 text-gray-500 hover:text-red-500">
+                <i class="fas fa-xmark"></i> <!-- Ikon "X" -->
+            </button>
+            <p id="popupText">Isi informasi di sini...</p>
+        </div>
+    </div>
+
+    <!-- Pop-up Tabel -->
+    <div id="tablePopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeTablePopup()">&times;</span>
+            <h2 id="popupTitle"></h2>
+            <table id="costTable">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kuantitas</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button onclick="addRow()">Tambah Baris</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center mt-5 text-gray-700">
+        <p>Created by adsurkasur (with AI)</p>
+        <div class="footer-icons flex justify-center mt-2 space-x-3">
+            <a href="https://twitter.com/adsurkasur" target="_blank">
+                <i class="fab fa-x-twitter"></i> <!-- Ikon Twitter sesuai referensi -->
+            </a>
+            <a href="https://github.com/adsurkasur" target="_blank">
+                <i class="fab fa-github"></i> <!-- Ikon GitHub -->
+            </a>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+// script.js
+function hitungAnalisis() {
+    let investment = parseFloat(document.getElementById("investment").value) || 0;
+    let operational = parseFloat(document.getElementById("operational").value) || 0;
+    let price = parseFloat(document.getElementById("price").value) || 0;
+    let cost = parseFloat(document.getElementById("cost").value) || 0;
+    let volume = parseFloat(document.getElementById("volume").value) || 0;
+
+    let profit = (price - cost) * volume - operational;
+    let roi = ((profit / investment) * 100).toFixed(2) + "%";
+    let bep = (investment / (price - cost)).toFixed(2);
+    let hpp = ((operational + cost * volume) / volume).toFixed(2);
+
+    document.getElementById("roi").textContent = roi;
+    document.getElementById("bep").textContent = bep + " unit";
+    document.getElementById("hpp").textContent = "Rp " + hpp;
+}
+
+document.querySelectorAll(".info-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        document.getElementById("popup-text").textContent = this.getAttribute("data-info");
+        document.getElementById("popup").style.display = "flex";
+    });
+});
+
+document.getElementById("popup").addEventListener("click", function (e) {
+    if (e.target === this) {
+        this.style.display = "none";
+    }
+});
+
+document.getElementById("close-popup").addEventListener("click", function () {
+    document.getElementById("popup").style.display = "none";
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("popupInfo");
+    const closePopup = document.getElementById("closePopup");
+
+    closePopup.addEventListener("click", function () {
+        popup.classList.add("hidden");
+    });
+
+    // Klik luar pop-up juga menutupnya
+    popup.addEventListener("click", function (event) {
+        if (event.target === popup) {
+            popup.classList.add("hidden");
+        }
+    });
+});
+
+let currentTable = "";
+
+function openTablePopup(tableType) {
+    currentTable = tableType;
+    document.getElementById("tablePopup").style.display = "block";
+    document.getElementById("popupTitle").innerText = (tableType === 'investmentTable') ? "Investment Cost" : "Operational Cost";
+}
+
+function closeTablePopup() {
+    document.getElementById("tablePopup").style.display = "none";
+    updateTotalCost();
+}
+
+function addRow() {
+    let table = document.querySelector("#costTable tbody");
+    let row = table.insertRow();
+    row.innerHTML = `
+        <td><input type="text"></td>
+        <td><input type="number" oninput="updateTotalCost()"></td>
+        <td><input type="number" oninput="updateTotalCost()"></td>
+        <td><button onclick="deleteRow(this)">Hapus</button></td>
+    `;
+}
+
+function deleteRow(button) {
+    button.parentElement.parentElement.remove();
+    updateTotalCost();
+}
+
+function updateTotalCost() {
+    let total = 0;
+    document.querySelectorAll("#costTable tbody tr").forEach(row => {
+        let qty = row.cells[1].querySelector("input").value || 0;
+        let price = row.cells[2].querySelector("input").value || 0;
+        total += (parseFloat(qty) * parseFloat(price));
+    });
+
+    if (currentTable === 'investmentTable') {
+        document.getElementById("investmentTotal").value = total;
+    } else {
+        document.getElementById("operationalTotal").value = total;
+    }
+}
+
+function updateCalculations() {
+    let totalUnit = document.getElementById("totalUnit").value || 1;
+    let biayaProduksi = document.getElementById("biayaProduksi").value || 0;
+    
+    let hpp = biayaProduksi / totalUnit;
+    document.getElementById("hpp").innerText = hpp.toFixed(2);
+
+    let investment = parseFloat(document.getElementById("investmentTotal").value) || 0;
+    let bep = investment / hpp;
+    document.getElementById("bep").innerText = bep.toFixed(2);
+}
+
+
+// styles.css
+body {
+    font-family: 'Rubik', sans-serif;
+    background-color: #f3f4f6;
+    text-align: center;
+}
+
+header {
+    background-color: #2563eb;
+    color: white;
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.container {
+    max-width: 500px;
+    margin: auto;
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    margin: 10px 0;
+    text-align: left;
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-with-button {
+    display: flex;
+    gap: 10px;
+}
+
+label {
+    font-weight: 500;
+}
+
+input[readonly] {
+    background-color: white; /* Warna sama seperti input lain */
+    color: #4b5563; /* Warna teks */
+    cursor: not-allowed;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.btn-hitung {
+    width: 100%;
+    background-color: #10b981;
+    color: white;
+    padding: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.info-btn {
+    background: none;
+    border: none;
+    color: #2563eb;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-left: 5px;
+}
+
+#popup {
+    position: fixed;
+    inset: 0;
+    display: none;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+#popup-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+}
+
+.popup {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    background: white;
+    width: 80%;
+    padding: 20px;
+    margin: 10% auto;
+    border-radius: 8px;
+}
+
+.close {
+    float: right;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#close-popup {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+}
+
+#popupInfo div {
+    position: relative;
+    max-width: 400px;
+    text-align: center;
+}
+
+#popupInfo button {
+    font-size: 1.2rem;
+}
+
+.footer-icons {
+    font-size: 1.5rem;
+}
+
+.footer-icons a {
+    margin: 0 10px;
+    color: inherit;
+    text-decoration: none;
+}
+
+.footer-icons a:hover {
+    opacity: 0.7;
+}
+
+footer {
+    margin-top: 20px;
+    font-size: 0.9rem;
+}
+
+footer a {
+    margin: 0 10px;
+    font-size: 1.5rem;
+    color: #333;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: #2563eb;
+    opacity: 0.7;
+}
+
+
+
+
