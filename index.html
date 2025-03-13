@@ -16,7 +16,7 @@
     </header>
 
     <div class="container">
-        <h2>Input Data</h2>
+        <h2 class="bold">Input Data</h2>
 
         <div class="form-group">
             <label>Investment Cost 
@@ -62,11 +62,12 @@
         <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
 
         <h2 class="hasil-analisis">Hasil Analisis</h2>
+        <button onclick="toggleFormatBep()" class="btn-toggle">Ubah Format BEP</button>
         <table>
             <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
             <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
             <tr><td>HPP (Harga Pokok Produksi)</td><td id="hpp">-</td></tr>
-            <tr><td>Profit Margin</td><td id="profit">-</td></tr>
+            <tr><td>Payback Period</td><td id="pp">-</td></tr>
         </table>
     </div>
 
@@ -92,7 +93,7 @@
     <div id="investmentPopup" class="popup">
         <div class="popup-content">
             <span class="close" onclick="closeTablePopup('investmentPopup')">&times;</span>
-            <h2>Investment Cost</h2>
+            <h2 class="bold">Investment Cost</h2>
             <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
             <table id="investmentTable">
                 <thead>
@@ -112,7 +113,7 @@
     <div id="operationalPopup" class="popup">
         <div class="popup-content">
             <span class="close" onclick="closeTablePopup('operationalPopup')">&times;</span>
-            <h2>Operational Cost</h2>
+            <h2 class="bold">Operational Cost</h2>
             <button class="btn-tambah" onclick="addRow('operationalTable')">Tambah Baris</button>
             <table id="operationalTable">
                 <thead>

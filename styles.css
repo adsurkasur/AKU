@@ -34,6 +34,10 @@ h2 {
     margin-top: 30px; /* Memberi jarak dari tombol Hitung */
 }
 
+.bold {
+    font-weight: bold;
+}
+
 /* === 3. FORM STYLES === */
 .form-group {
     margin: 10px 0;
@@ -127,6 +131,22 @@ button {
     cursor: pointer;
     font-size: 1rem;
     margin-left: 5px;
+}
+
+.btn-toggle {
+    background-color: #f59e0b;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-toggle:hover {
+    background-color: #d97706;
 }
 
 /* === 5. TABLE STYLES === */

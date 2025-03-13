@@ -17,7 +17,7 @@
     </header>
 
     <div class="container">
-        <h2>Input Data</h2>
+        <h2 class="bold">Input Data</h2>
 
         <div class="form-group">
             <label>Investment Cost 
@@ -61,15 +61,14 @@
         </div>
 
         <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
-    </div>
 
-    <div class="container">
-        <h2>Hasil Analisis</h2>
+        <h2 class="hasil-analisis">Hasil Analisis</h2>
+        <button onclick="toggleFormatBep()" class="btn-toggle">Ubah Format BEP</button>
         <table>
             <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
             <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
             <tr><td>HPP (Harga Pokok Produksi)</td><td id="hpp">-</td></tr>
-            <tr><td>Profit Margin</td><td id="profit">-</td></tr>
+            <tr><td>Payback Period</td><td id="pp">-</td></tr>
         </table>
     </div>
 
@@ -95,7 +94,7 @@
     <div id="investmentPopup" class="popup">
         <div class="popup-content">
             <span class="close" onclick="closeTablePopup('investmentPopup')">&times;</span>
-            <h2>Investment Cost</h2>
+            <h2 class="bold">Investment Cost</h2>
             <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
             <table id="investmentTable">
                 <thead>
@@ -115,8 +114,8 @@
     <div id="operationalPopup" class="popup">
         <div class="popup-content">
             <span class="close" onclick="closeTablePopup('operationalPopup')">&times;</span>
-            <h2>Operational Cost</h2>
-            <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
+            <h2 class="bold">Operational Cost</h2>
+            <button class="btn-tambah" onclick="addRow('operationalTable')">Tambah Baris</button>
             <table id="operationalTable">
                 <thead>
                     <tr>
@@ -150,62 +149,64 @@
 </html>
 
 // script.js
-// 1️⃣ Fungsi utama untuk perhitungan
-function hitungAnalisis() {
-    let investment = parseFloat(document.getElementById("investment").value) || 0;
-    let operational = parseFloat(document.getElementById("operational").value) || 0;
-    let price = parseFloat(document.getElementById("price").value) || 0;
-    let cost = parseFloat(document.getElementById("cost").value) || 0;
-    let volume = parseFloat(document.getElementById("volume").value) || 0;
+// Variabel global untuk menyimpan format BEP (default: unit)
+let isBepRupiah = false;
 
-    let profit = (price - cost) * volume - operational;
-    let roi = ((profit / investment) * 100).toFixed(2) + "%";
-    let bep = (investment / (price - cost)).toFixed(2);
-    let hpp = ((operational + cost * volume) / volume).toFixed(2);
-
-    document.getElementById("roi").textContent = roi;
-    document.getElementById("bep").textContent = bep + " unit";
-    document.getElementById("hpp").textContent = "Rp " + hpp;
+// Fungsi toggle format BEP (unit <-> rupiah)
+function toggleFormatBep() {
+    isBepRupiah = !isBepRupiah;
+    hitungAnalisis();
 }
 
-// 2️⃣ Event listener untuk tombol info pop-up
-document.querySelectorAll(".info-btn").forEach(button => {
-    button.addEventListener("click", function () {
-        document.getElementById("popup-text").textContent = this.getAttribute("data-info");
-        document.getElementById("popup").style.display = "flex";
-    });
-});
+// Fungsi utama untuk perhitungan
+function hitungAnalisis() {
+    let investment = getValue("investment");
+    let operational = getValue("operational");
+    let price = getValue("price");
+    let cost = getValue("cost");
+    let volume = getValue("volume");
 
-document.getElementById("popup").addEventListener("click", function (e) {
-    if (e.target === this) {
-        this.style.display = "none";
-    }
-});
+    let profit = (price - cost) * volume - operational;
+    let roi = investment > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
+    let bepUnit = price > cost ? (investment / (price - cost)).toFixed(2) : "Tidak valid";
+    let bepRupiah = price > cost ? formatRupiah((investment / (price - cost)) * price) : "Tidak valid";
+    let hpp = volume > 0 ? formatRupiah((cost * volume + operational) / volume) : "Tidak valid";
+    let pp = profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
-document.getElementById("close-popup").addEventListener("click", function () {
-    document.getElementById("popup").style.display = "none";
-});
+    setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
+    setText("hpp", hpp);
+    setText("roi", roi);
+    setText("pp", pp);
+}
 
-// 3️⃣ Event listener untuk inisialisasi saat halaman dimuat
-document.addEventListener("DOMContentLoaded", function () {
-    const popup = document.getElementById("popupInfo");
-    const closePopup = document.getElementById("closePopup");
+// Fungsi untuk format Rupiah
+function formatRupiah(number) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+}
 
-    closePopup.addEventListener("click", function () {
-        popup.classList.add("hidden");
-    });
+// Fungsi mendapatkan nilai input dengan ID tertentu (dengan pengecekan agar tidak error)
+function getValue(id) {
+    let el = document.getElementById(id);
+    return el ? parseFloat(el.value) || 0 : 0;
+}
 
-    // Klik luar pop-up juga menutupnya
-    popup.addEventListener("click", function (event) {
-        if (event.target === popup) {
-            popup.classList.add("hidden");
-        }
-    });
-});
+// Fungsi mengubah teks dalam elemen dengan ID tertentu
+function setText(id, text) {
+    let el = document.getElementById(id);
+    if (el) el.textContent = text;
+}
 
-// 4️⃣ Fungsi untuk tabel (tambah/hapus/update total)
-let currentTable = "";
+// Fungsi untuk update perhitungan berdasarkan data tabel
+function updateCalculations() {
+    let totalUnit = getValue("totalUnit");
+    let biayaProduksi = getValue("biayaProduksi");
+    let hppValue = totalUnit > 0 ? biayaProduksi / totalUnit : 0;
 
+    setText("hpp", totalUnit > 0 ? formatRupiah(hppValue) : "Tidak valid");
+    setText("bep", hppValue > 0 ? (getValue("investment") / hppValue).toFixed(2) : "Tidak valid");
+}
+
+// Fungsi untuk tabel (tambah/hapus/update total)
 function addRow(tableId) {
     let table = document.querySelector(`#${tableId} tbody`);
     let row = table.insertRow();
@@ -213,14 +214,13 @@ function addRow(tableId) {
         <td><input type="text"></td>
         <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
         <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
-        <td><button class="btn-hapus" onclick="deleteRow(this)">Hapus</button></td>
+        <td><button class="btn-hapus" onclick="deleteRow(this, '${tableId}')">Hapus</button></td>
     `;
 }
 
-
-function deleteRow(button) {
+function deleteRow(button, tableId) {
     button.parentElement.parentElement.remove();
-    updateTotalCost();
+    updateTotalCost(tableId);
 }
 
 function updateTotalCost(tableId) {
@@ -230,40 +230,35 @@ function updateTotalCost(tableId) {
         let price = row.cells[2].querySelector("input").value || 0;
         total += (parseFloat(qty) * parseFloat(price));
     });
-
-    if (tableId === "investmentTable") {
-        document.getElementById("investment").value = total;
-    } else {
-        document.getElementById("operational").value = total;
-    }
+    document.getElementById(tableId === "investmentTable" ? "investment" : "operational").value = total;
 }
 
-
-// 5️⃣ Fungsi untuk update perhitungan berdasarkan data tabel
-function updateCalculations() {
-    let totalUnit = document.getElementById("totalUnit").value || 1;
-    let biayaProduksi = document.getElementById("biayaProduksi").value || 0;
-    
-    let hpp = biayaProduksi / totalUnit;
-    document.getElementById("hpp").innerText = hpp.toFixed(2);
-
-    let investment = parseFloat(document.getElementById("investment").value) || 0;
-    let bep = investment / hpp;
-    document.getElementById("bep").innerText = bep.toFixed(2);
-}
-
-// 6️⃣ Fungsi untuk membuka/menutup tabel pop-up
+// Fungsi untuk membuka/menutup tabel pop-up
 function openTablePopup(type) {
-    if (type === 'investment') {
-        document.getElementById("investmentPopup").style.display = "block";
-    } else {
-        document.getElementById("operationalPopup").style.display = "block";
+    let popup = document.getElementById(type === 'investment' ? "investmentPopup" : "operationalPopup");
+    if (popup) {
+        popup.style.display = "block";
+        document.body.style.overflow = "hidden";
     }
 }
 
 function closeTablePopup(type) {
-    document.getElementById(type).style.display = "none";
+    let popup = document.getElementById(type);
+    if (popup) {
+        popup.style.display = "none";
+        document.body.style.overflow = "auto";
+    }
 }
+
+// Menutup pop-up jika klik di luar kontennya
+document.querySelectorAll(".popup").forEach(popup => {
+    popup.addEventListener("click", function(event) {
+        if (event.target === this) {
+            this.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+    });
+});
 
 
 // styles.css
@@ -294,8 +289,17 @@ header {
 
 h2 {
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: bold;
     margin-bottom: 15px;
+}
+
+.hasil-analisis {
+    font-weight: bold;
+    margin-top: 30px; /* Memberi jarak dari tombol Hitung */
+}
+
+.bold {
+    font-weight: bold;
 }
 
 /* === 3. FORM STYLES === */
@@ -391,6 +395,22 @@ button {
     cursor: pointer;
     font-size: 1rem;
     margin-left: 5px;
+}
+
+.btn-toggle {
+    background-color: #f59e0b;
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-toggle:hover {
+    background-color: #d97706;
 }
 
 /* === 5. TABLE STYLES === */
