@@ -214,30 +214,67 @@ document.getElementById("closePopup").addEventListener("click", function () {
 function exportToXlsx() {
     // Create a new workbook and worksheet
     let wb = XLSX.utils.book_new();
-    let ws_data = [
-        ["Parameter", "Value"],
-        ["Investment Cost", getValue("investment")],
-        ["Operational Cost per Bulan", getValue("operational")],
-        ["Biaya Produksi per Unit", getValue("biayaProduksi")],
-        ["Volume Penjualan per Bulan", getValue("volume")],
-        ["Markup (%)", getValue("markup")],
-        ["Harga Pokok Produksi (HPP) per unit", getText("hpp")],
-        ["Harga Jual per Unit", getText("hargaJual")],
-        ["Revenue (Pendapatan)", getText("revenue")],
-        ["Profit (Laba Bersih)", getText("profit")],
-        ["ROI (Return on Investment)", getText("roi")],
-        ["BEP (Break Even Point)", getText("bep")],
-        ["Payback Period", getText("pp")],
-        ["Profit Margin", getText("profit-margin")]
+
+    // Export Investment Table
+    let investmentTable = document.querySelector("#investmentTable tbody");
+    let investmentData = [["Nama", "Kuantitas", "Harga (Rp)"]];
+    investmentTable.querySelectorAll("tr").forEach(row => {
+        let item = row.cells[0].querySelector("input").value;
+        let qty = parseFloat(row.cells[1].querySelector("input").value) || 0;
+        let price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+        investmentData.push([item, qty, price]);
+    });
+    if (investmentData.length > 1) { // Check if there are more than one data rows
+        let lastRow = investmentData.length + 1;
+        investmentData.push(["Total", { f: `SUM(B2:B${lastRow - 1})` }, { f: `SUM(C2:C${lastRow - 1})` }]);
+    }
+    let wsInvestment = XLSX.utils.aoa_to_sheet(investmentData);
+    XLSX.utils.book_append_sheet(wb, wsInvestment, "Tabel Investment Cost");
+
+    // Export Operational Table
+    let operationalTable = document.querySelector("#operationalTable tbody");
+    let operationalData = [["Nama", "Kuantitas", "Harga (Rp)"]];
+    operationalTable.querySelectorAll("tr").forEach(row => {
+        let item = row.cells[0].querySelector("input").value;
+        let qty = parseFloat(row.cells[1].querySelector("input").value) || 0;
+        let price = parseFloat(row.cells[2].querySelector("input").value) || 0;
+        operationalData.push([item, qty, price]);
+    });
+    if (operationalData.length > 1) { // Check if there are more than one data rows
+        let lastRow = operationalData.length + 1;
+        operationalData.push(["Total", { f: `SUM(B2:B${lastRow - 1})` }, { f: `SUM(C2:C${lastRow - 1})` }]);
+    }
+    let wsOperational = XLSX.utils.aoa_to_sheet(operationalData);
+    XLSX.utils.book_append_sheet(wb, wsOperational, "Tabel Operational Cost");
+
+    // Export Hasil Analisis
+    let investmentRowCount = document.querySelectorAll("#investmentTable tbody tr").length + 1; // +1 for header
+    let operationalRowCount = document.querySelectorAll("#operationalTable tbody tr").length + 1; // +1 for header
+
+    let investmentSumFormula = investmentRowCount > 2 ? `SUM('Tabel Investment Cost'!C2:C${investmentRowCount})` : `'Tabel Investment Cost'!C2`;
+    let operationalSumFormula = operationalRowCount > 2 ? `SUM('Tabel Operational Cost'!C2:C${operationalRowCount})` : `'Tabel Operational Cost'!C2`;
+
+    let hasilAnalisisData = [
+        ["Parameter", "Nilai", "Unit"],
+        ["Investment", { f: investmentSumFormula }, "Rupiah"],
+        ["Operational", { f: operationalSumFormula }, "Rupiah"],
+        ["Biaya Produksi", getValue("biayaProduksi"), "Rupiah"],
+        ["Volume", getValue("volume"), "unit"],
+        ["Markup", getValue("markup"), "%"],
+        ["HPP", { f: `B4 + (B3 / MAX(B5, 1))` }, "Rupiah"],
+        ["Harga Jual", { f: `B7 * (1 + (B6 / 100))` }, "Rupiah"],
+        ["Revenue", { f: `B8 * B5` }, "Rupiah"],
+        ["Profit", { f: `B9 - B7` }, "Rupiah"],
+        ["ROI", { f: `IF(B2 > 0, (B10 / B2) * 100, "Tidak valid")` }, "%"],
+        ["BEP", { f: `IF(B8 > B7, B2 / (B8 - B7), "Tidak valid")` }, "unit"],
+        ["Payback Period", { f: `IF(B2 > 0, B2 / B10, "Tidak valid")` }, "bulan"],
+        ["Profit Margin", { f: `IF(B9 > 0, (B10 / B9) * 100, "Tidak valid")` }, "%"]
     ];
-
-    let ws = XLSX.utils.aoa_to_sheet(ws_data);
-
-    // Append the worksheet to the workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Hasil Analisis");
+    let wsHasilAnalisis = XLSX.utils.aoa_to_sheet(hasilAnalisisData);
+    XLSX.utils.book_append_sheet(wb, wsHasilAnalisis, "Hasil Analisis");
 
     // Export the workbook to XLSX file
-    XLSX.writeFile(wb, "Hasil_Analisis.xlsx");
+    XLSX.writeFile(wb, "AKU_Analisis_Kelayakan_Usaha.xlsx");
 }
 
 function importFromXlsx(event) {
@@ -252,32 +289,60 @@ function importFromXlsx(event) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
 
-        // Assuming the first sheet contains the data
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
+        // Import Investment Table
+        const wsInvestment = workbook.Sheets["Tabel Investment Cost"];
+        const investmentData = XLSX.utils.sheet_to_json(wsInvestment, { header: 1 });
+        updateTableFromData("investmentTable", investmentData);
 
-        // Parse the worksheet data
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        // Import Operational Table
+        const wsOperational = workbook.Sheets["Tabel Operational Cost"];
+        const operationalData = XLSX.utils.sheet_to_json(wsOperational, { header: 1 });
+        updateTableFromData("operationalTable", operationalData);
 
-        // Update the form fields with the imported data
-        if (jsonData.length > 1) {
-            setInputValue("investment", jsonData[1][1]);
-            setInputValue("operational", jsonData[2][1]);
-            setInputValue("biayaProduksi", jsonData[3][1]);
-            setInputValue("volume", jsonData[4][1]);
-            setInputValue("markup", jsonData[5][1]);
-            setText("hpp", jsonData[6][1]);
-            setText("hargaJual", jsonData[7][1]);
-            setText("revenue", jsonData[8][1]);
-            setText("profit", jsonData[9][1]);
-            setText("roi", jsonData[10][1]);
-            setText("bep", jsonData[11][1]);
-            setText("pp", jsonData[12][1]);
-            setText("profit-margin", jsonData[13][1]);
+        // Import Hasil Analisis
+        const wsHasilAnalisis = workbook.Sheets["Hasil Analisis"];
+        const hasilAnalisisData = XLSX.utils.sheet_to_json(wsHasilAnalisis, { header: 1 });
+
+        if (hasilAnalisisData.length > 1) {
+            setInputValue("investment", hasilAnalisisData[1][1] || "");
+            setInputValue("operational", hasilAnalisisData[2][1] || "");
+            setInputValue("biayaProduksi", hasilAnalisisData[3][1] || "");
+            setInputValue("volume", hasilAnalisisData[4][1] || "");
+            setInputValue("markup", hasilAnalisisData[5][1] || "");
+            setText("hpp", hasilAnalisisData[6][1] || "");
+            setText("hargaJual", hasilAnalisisData[7][1] || "");
+            setText("revenue", hasilAnalisisData[8][1] || "");
+            setText("profit", hasilAnalisisData[9][1] || "");
+            setText("roi", hasilAnalisisData[10][1] || "");
+            setText("bep", hasilAnalisisData[11][1] || "");
+            setText("pp", hasilAnalisisData[12][1] || "");
+            setText("profit-margin", hasilAnalisisData[13][1] || "");
+
+            // Trigger recalculation after importing
+            updateTotalCost("investmentTable");
+            updateTotalCost("operationalTable");
+            hitungAnalisis();
         }
     };
 
     reader.readAsArrayBuffer(file);
+}
+
+function updateTableFromData(tableId, data) {
+    let table = document.querySelector(`#${tableId} tbody`);
+    table.innerHTML = ""; // Clear existing rows
+    data.slice(1).forEach(row => { // Skip header row
+        if (row[0] !== "Total") { // Exclude "Total" row
+            let newRow = table.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" value="${row[0] || ''}"></td>
+                <td><input type="number" value="${row[1] || 0}" oninput="updateTotalCost('${tableId}')"></td>
+                <td><input type="number" value="${row[2] || 0}" oninput="updateTotalCost('${tableId}')"></td>
+                <td><button class="btn-hapus" onclick="deleteRow(this, '${tableId}')">Hapus</button></td>
+            `;
+        }
+    });
+    updateTotalCost(tableId); // Update total cost after importing
 }
 
 // Helper function to get the text content of an element by its ID
