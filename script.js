@@ -254,22 +254,25 @@ function exportToXlsx() {
     let investmentSumFormula = investmentRowCount > 2 ? `SUM('Tabel Investment Cost'!C2:C${investmentRowCount})` : `'Tabel Investment Cost'!C2`;
     let operationalSumFormula = operationalRowCount > 2 ? `SUM('Tabel Operational Cost'!C2:C${operationalRowCount})` : `'Tabel Operational Cost'!C2`;
 
+// BROKEN
     let hasilAnalisisData = [
         ["Parameter", "Nilai", "Unit"],
         ["Investment", { f: investmentSumFormula }, "Rupiah"],
         ["Operational", { f: operationalSumFormula }, "Rupiah"],
-        ["Biaya Produksi", getValue("biayaProduksi"), "Rupiah"],
-        ["Volume", getValue("volume"), "unit"],
-        ["Markup", getValue("markup"), "%"],
-        ["HPP", { f: `B4 + (B3 / MAX(B5, 1))` }, "Rupiah"],
-        ["Harga Jual", { f: `B7 * (1 + (B6 / 100))` }, "Rupiah"],
-        ["Revenue", { f: `B8 * B5` }, "Rupiah"],
-        ["Profit", { f: `B9 - B7` }, "Rupiah"],
-        ["ROI", { f: `IF(B2 > 0, (B10 / B2) * 100, "Tidak valid")` }, "%"],
-        ["BEP", { f: `IF(B8 > B7, B2 / (B8 - B7), "Tidak valid")` }, "unit"],
-        ["Payback Period", { f: `IF(B2 > 0, B2 / B10, "Tidak valid")` }, "bulan"],
-        ["Profit Margin", { f: `IF(B9 > 0, (B10 / B9) * 100, "Tidak valid")` }, "%"]
+        ["Biaya Produksi", { f: `'Tabel Investment Cost'!C2` }, "Rupiah"],
+        ["Volume", { f: `'Tabel Investment Cost'!B2` }, "unit"],
+        ["Markup", { f: `'Tabel Investment Cost'!B3` }, "%"],
+        ["HPP", { f: `'Hasil Analisis'!B3 + ('Hasil Analisis'!B2 / MAX('Hasil Analisis'!B4, 1))` }, "Rupiah"],
+        ["Harga Jual", { f: `'Hasil Analisis'!B7 * (1 + ('Hasil Analisis'!B6 / 100))` }, "Rupiah"],
+        ["Revenue", { f: `'Hasil Analisis'!B8 * 'Hasil Analisis'!B5` }, "Rupiah"],
+        ["Profit", { f: `'Hasil Analisis'!B9 - ('Hasil Analisis'!B7 * 'Hasil Analisis'!B5)` }, "Rupiah"],
+        ["ROI", { f: `IF('Hasil Analisis'!B2 > 0, ('Hasil Analisis'!B10 / 'Hasil Analisis'!B2) * 100, "Tidak valid")` }, "%"],
+        ["BEP", { f: `IF('Hasil Analisis'!B8 > 'Hasil Analisis'!B7, 'Hasil Analisis'!B2 / ('Hasil Analisis'!B8 - 'Hasil Analisis'!B7), "Tidak valid")` }, isBepRupiah ? "Rupiah" : "unit"],
+        ["Payback Period", { f: `IF('Hasil Analisis'!B2 > 0, ROUND(('Hasil Analisis'!B2 / 'Hasil Analisis'!B10) * 30, 0), "Tidak valid")` }, ""],
+        ["Profit Margin", { f: `IF('Hasil Analisis'!B9 > 0, ('Hasil Analisis'!B10 / 'Hasil Analisis'!B9) * 100, "Tidak valid")` }, "%"]
     ];
+// BROKEN
+
     let wsHasilAnalisis = XLSX.utils.aoa_to_sheet(hasilAnalisisData);
     XLSX.utils.book_append_sheet(wb, wsHasilAnalisis, "Hasil Analisis");
 
