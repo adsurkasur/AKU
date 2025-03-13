@@ -183,3 +183,72 @@ document.getElementById("closePopup").addEventListener("click", function () {
     popup.classList.add("hidden");
     popup.style.display = "none"; // Ensure the popup is hidden
 });
+
+function exportToXlsx() {
+    // Create a new workbook and worksheet
+    let wb = XLSX.utils.book_new();
+    let ws_data = [
+        ["Parameter", "Value"],
+        ["Harga Pokok Produksi (HPP) per unit", document.getElementById("hpp").textContent],
+        ["Harga Jual per Unit", document.getElementById("hargaJual").textContent],
+        ["Revenue (Pendapatan)", document.getElementById("revenue").textContent],
+        ["Profit (Laba Bersih)", document.getElementById("profit").textContent],
+        ["ROI (Return on Investment)", document.getElementById("roi").textContent],
+        ["BEP (Break Even Point)", document.getElementById("bep").textContent],
+        ["Payback Period", document.getElementById("pp").textContent],
+        ["Profit Margin", document.getElementById("profit-margin").textContent]
+    ];
+
+    let ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    // Add formulas to the worksheet
+    ws['B2'].f = `(${getValue("biayaProduksi")} * ${getValue("volume")} + ${getValue("operational")}) / ${getValue("volume")}`;
+    ws['B3'].f = `B2 * (1 + ${parseFloat(document.getElementById("markup").value) / 100})`;
+    ws['B4'].f = `B3 * ${getValue("volume")}`;
+    ws['B5'].f = `(B3 - B2) * ${getValue("volume")}`;
+    ws['B6'].f = `B5 / ${getValue("investment")} * 100`;
+    ws['B7'].f = `${getValue("investment")} / (B3 - B2)`;
+    ws['B8'].f = `${getValue("investment")} / B5`;
+    ws['B9'].f = `B5 / B4 * 100`;
+
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Hasil Analisis");
+
+    // Export the workbook to XLSX file
+    XLSX.writeFile(wb, "Hasil_Analisis.xlsx");
+}
+
+function importFromXlsx(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        alert("No file selected!");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        // Assuming the first sheet contains the data
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // Parse the worksheet data
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Update the form fields with the imported data
+        if (jsonData.length > 1) {
+            setText("hpp", jsonData[1][1]);
+            setText("hargaJual", jsonData[2][1]);
+            setText("revenue", jsonData[3][1]);
+            setText("profit", jsonData[4][1]);
+            setText("roi", jsonData[5][1]);
+            setText("bep", jsonData[6][1]);
+            setText("pp", jsonData[7][1]);
+            setText("profit-margin", jsonData[8][1]);
+        }
+    };
+
+    reader.readAsArrayBuffer(file);
+}
