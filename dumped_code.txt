@@ -23,15 +23,21 @@
             <label>Investment Cost 
                 <button class="info-btn" data-info="Investment Cost adalah biaya awal yang diperlukan untuk memulai usaha.">ⓘ</button>
             </label>
-            <input type="number" id="investment" readonly>
+            <div class="input-with-button">
+                <input type="number" id="investment" readonly>
+                <button class="btn-tambah" onclick="openTablePopup('investment')">Tambahkan</button>
+            </div>
         </div>
         
         <div class="form-group">
             <label>Operational Cost 
                 <button class="info-btn" data-info="Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan usaha.">ⓘ</button>
             </label>
-            <input type="number" id="operational" readonly>
-        </div>
+            <div class="input-with-button">
+                <input type="number" id="operational" readonly>
+                <button class="btn-tambah" onclick="openTablePopup('operational')">Tambahkan</button>
+            </div>
+        </div>        
 
         <div class="form-group">
             <label>Harga Jual per Unit 
@@ -85,12 +91,13 @@
         </div>
     </div>
 
-    <!-- Pop-up Tabel -->
-    <div id="tablePopup" class="popup">
+    <!-- Pop-up Investment Cost -->
+    <div id="investmentPopup" class="popup">
         <div class="popup-content">
-            <span class="close" onclick="closeTablePopup()">&times;</span>
-            <h2 id="popupTitle"></h2>
-            <table id="costTable">
+            <span class="close" onclick="closeTablePopup('investmentPopup')">&times;</span>
+            <h2>Investment Cost</h2>
+            <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
+            <table id="investmentTable">
                 <thead>
                     <tr>
                         <th>Nama</th>
@@ -101,9 +108,29 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <button onclick="addRow()">Tambah Baris</button>
         </div>
     </div>
+
+    <!-- Pop-up Operational Cost -->
+    <div id="operationalPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeTablePopup('operationalPopup')">&times;</span>
+            <h2>Operational Cost</h2>
+            <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
+            <table id="operationalTable">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kuantitas</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
 
     <!-- Footer -->
     <footer class="text-center mt-5 text-gray-700">
@@ -123,6 +150,7 @@
 </html>
 
 // script.js
+// 1️⃣ Fungsi utama untuk perhitungan
 function hitungAnalisis() {
     let investment = parseFloat(document.getElementById("investment").value) || 0;
     let operational = parseFloat(document.getElementById("operational").value) || 0;
@@ -140,6 +168,7 @@ function hitungAnalisis() {
     document.getElementById("hpp").textContent = "Rp " + hpp;
 }
 
+// 2️⃣ Event listener untuk tombol info pop-up
 document.querySelectorAll(".info-btn").forEach(button => {
     button.addEventListener("click", function () {
         document.getElementById("popup-text").textContent = this.getAttribute("data-info");
@@ -157,6 +186,7 @@ document.getElementById("close-popup").addEventListener("click", function () {
     document.getElementById("popup").style.display = "none";
 });
 
+// 3️⃣ Event listener untuk inisialisasi saat halaman dimuat
 document.addEventListener("DOMContentLoaded", function () {
     const popup = document.getElementById("popupInfo");
     const closePopup = document.getElementById("closePopup");
@@ -173,50 +203,43 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// 4️⃣ Fungsi untuk tabel (tambah/hapus/update total)
 let currentTable = "";
 
-function openTablePopup(tableType) {
-    currentTable = tableType;
-    document.getElementById("tablePopup").style.display = "block";
-    document.getElementById("popupTitle").innerText = (tableType === 'investmentTable') ? "Investment Cost" : "Operational Cost";
-}
-
-function closeTablePopup() {
-    document.getElementById("tablePopup").style.display = "none";
-    updateTotalCost();
-}
-
-function addRow() {
-    let table = document.querySelector("#costTable tbody");
+function addRow(tableId) {
+    let table = document.querySelector(`#${tableId} tbody`);
     let row = table.insertRow();
     row.innerHTML = `
         <td><input type="text"></td>
-        <td><input type="number" oninput="updateTotalCost()"></td>
-        <td><input type="number" oninput="updateTotalCost()"></td>
-        <td><button onclick="deleteRow(this)">Hapus</button></td>
+        <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
+        <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
+        <td><button class="btn-hapus" onclick="deleteRow(this)">Hapus</button></td>
     `;
 }
+
 
 function deleteRow(button) {
     button.parentElement.parentElement.remove();
     updateTotalCost();
 }
 
-function updateTotalCost() {
+function updateTotalCost(tableId) {
     let total = 0;
-    document.querySelectorAll("#costTable tbody tr").forEach(row => {
+    document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
         let qty = row.cells[1].querySelector("input").value || 0;
         let price = row.cells[2].querySelector("input").value || 0;
         total += (parseFloat(qty) * parseFloat(price));
     });
 
-    if (currentTable === 'investmentTable') {
-        document.getElementById("investmentTotal").value = total;
+    if (tableId === "investmentTable") {
+        document.getElementById("investment").value = total;
     } else {
-        document.getElementById("operationalTotal").value = total;
+        document.getElementById("operational").value = total;
     }
 }
 
+
+// 5️⃣ Fungsi untuk update perhitungan berdasarkan data tabel
 function updateCalculations() {
     let totalUnit = document.getElementById("totalUnit").value || 1;
     let biayaProduksi = document.getElementById("biayaProduksi").value || 0;
@@ -224,13 +247,27 @@ function updateCalculations() {
     let hpp = biayaProduksi / totalUnit;
     document.getElementById("hpp").innerText = hpp.toFixed(2);
 
-    let investment = parseFloat(document.getElementById("investmentTotal").value) || 0;
+    let investment = parseFloat(document.getElementById("investment").value) || 0;
     let bep = investment / hpp;
     document.getElementById("bep").innerText = bep.toFixed(2);
 }
 
+// 6️⃣ Fungsi untuk membuka/menutup tabel pop-up
+function openTablePopup(type) {
+    if (type === 'investment') {
+        document.getElementById("investmentPopup").style.display = "block";
+    } else {
+        document.getElementById("operationalPopup").style.display = "block";
+    }
+}
+
+function closeTablePopup(type) {
+    document.getElementById(type).style.display = "none";
+}
+
 
 // styles.css
+/* === 1. GLOBAL STYLES === */
 body {
     font-family: 'Rubik', sans-serif;
     background-color: #f3f4f6;
@@ -245,6 +282,7 @@ header {
     padding: 10px;
 }
 
+/* === 2. CONTAINER & STRUCTURE === */
 .container {
     max-width: 500px;
     margin: auto;
@@ -260,6 +298,7 @@ h2 {
     margin-bottom: 15px;
 }
 
+/* === 3. FORM STYLES === */
 .form-group {
     margin: 10px 0;
     text-align: left;
@@ -279,12 +318,6 @@ label {
     font-weight: 500;
 }
 
-input[readonly] {
-    background-color: white; /* Warna sama seperti input lain */
-    color: #4b5563; /* Warna teks */
-    cursor: not-allowed;
-}
-
 input {
     width: 100%;
     padding: 8px;
@@ -293,12 +326,34 @@ input {
     margin-top: 5px;
 }
 
+input[readonly] {
+    background-color: white;
+    color: #4b5563;
+    cursor: not-allowed;
+}
+
+/* === 4. BUTTON STYLES === */
 button {
     background-color: #28a745;
     color: white;
     border: none;
     padding: 5px 10px;
     cursor: pointer;
+}
+
+.btn-tambah {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.btn-tambah:hover {
+    background-color: #1e40af;
 }
 
 .btn-hitung {
@@ -314,16 +369,19 @@ button {
     margin-top: 15px;
 }
 
-table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: collapse;
+.btn-hapus {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: bold;
 }
 
-td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+.btn-hapus:hover {
+    background-color: #b91c1c;
 }
 
 .info-btn {
@@ -335,6 +393,45 @@ td {
     margin-left: 5px;
 }
 
+/* === 5. TABLE STYLES === */
+.table-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+#costTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#costTable th, #costTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#costTable thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+
+td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+/* === 6. POPUP STYLES === */
 #popup {
     position: fixed;
     inset: 0;
@@ -370,6 +467,17 @@ td {
     border-radius: 8px;
 }
 
+#popupInfo div {
+    position: relative;
+    max-width: 400px;
+    text-align: center;
+}
+
+#popupInfo button {
+    font-size: 1.2rem;
+}
+
+/* CLOSE BUTTON */
 .close {
     float: right;
     font-size: 20px;
@@ -384,16 +492,7 @@ td {
     font-size: 1.2rem;
 }
 
-#popupInfo div {
-    position: relative;
-    max-width: 400px;
-    text-align: center;
-}
-
-#popupInfo button {
-    font-size: 1.2rem;
-}
-
+/* === 7. FOOTER STYLES === */
 .footer-icons {
     font-size: 1.5rem;
 }
@@ -425,6 +524,40 @@ footer a:hover {
     opacity: 0.7;
 }
 
+.popup-content {
+    background: white;
+    width: 80%;
+    padding: 20px;
+    margin: 10% auto;
+    border-radius: 8px;
+    max-height: 80vh;
+    overflow-y: auto; /* Pop-up bisa di-scroll jika kontennya terlalu panjang */
+}
 
+.table-container {
+    max-height: 300px; /* Maksimum tinggi tabel */
+    overflow-y: auto;  /* Scroll jika lebih dari 300px */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+#investmentTable, #operationalTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#investmentTable th, #investmentTable td,
+#operationalTable th, #operationalTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#investmentTable thead, #operationalTable thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
 
 

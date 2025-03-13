@@ -1,3 +1,4 @@
+// 1️⃣ Fungsi utama untuk perhitungan
 function hitungAnalisis() {
     let investment = parseFloat(document.getElementById("investment").value) || 0;
     let operational = parseFloat(document.getElementById("operational").value) || 0;
@@ -15,6 +16,7 @@ function hitungAnalisis() {
     document.getElementById("hpp").textContent = "Rp " + hpp;
 }
 
+// 2️⃣ Event listener untuk tombol info pop-up
 document.querySelectorAll(".info-btn").forEach(button => {
     button.addEventListener("click", function () {
         document.getElementById("popup-text").textContent = this.getAttribute("data-info");
@@ -32,6 +34,7 @@ document.getElementById("close-popup").addEventListener("click", function () {
     document.getElementById("popup").style.display = "none";
 });
 
+// 3️⃣ Event listener untuk inisialisasi saat halaman dimuat
 document.addEventListener("DOMContentLoaded", function () {
     const popup = document.getElementById("popupInfo");
     const closePopup = document.getElementById("closePopup");
@@ -48,50 +51,43 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+// 4️⃣ Fungsi untuk tabel (tambah/hapus/update total)
 let currentTable = "";
 
-function openTablePopup(tableType) {
-    currentTable = tableType;
-    document.getElementById("tablePopup").style.display = "block";
-    document.getElementById("popupTitle").innerText = (tableType === 'investmentTable') ? "Investment Cost" : "Operational Cost";
-}
-
-function closeTablePopup() {
-    document.getElementById("tablePopup").style.display = "none";
-    updateTotalCost();
-}
-
-function addRow() {
-    let table = document.querySelector("#costTable tbody");
+function addRow(tableId) {
+    let table = document.querySelector(`#${tableId} tbody`);
     let row = table.insertRow();
     row.innerHTML = `
         <td><input type="text"></td>
-        <td><input type="number" oninput="updateTotalCost()"></td>
-        <td><input type="number" oninput="updateTotalCost()"></td>
-        <td><button onclick="deleteRow(this)">Hapus</button></td>
+        <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
+        <td><input type="number" oninput="updateTotalCost('${tableId}')"></td>
+        <td><button class="btn-hapus" onclick="deleteRow(this)">Hapus</button></td>
     `;
 }
+
 
 function deleteRow(button) {
     button.parentElement.parentElement.remove();
     updateTotalCost();
 }
 
-function updateTotalCost() {
+function updateTotalCost(tableId) {
     let total = 0;
-    document.querySelectorAll("#costTable tbody tr").forEach(row => {
+    document.querySelectorAll(`#${tableId} tbody tr`).forEach(row => {
         let qty = row.cells[1].querySelector("input").value || 0;
         let price = row.cells[2].querySelector("input").value || 0;
         total += (parseFloat(qty) * parseFloat(price));
     });
 
-    if (currentTable === 'investmentTable') {
-        document.getElementById("investmentTotal").value = total;
+    if (tableId === "investmentTable") {
+        document.getElementById("investment").value = total;
     } else {
-        document.getElementById("operationalTotal").value = total;
+        document.getElementById("operational").value = total;
     }
 }
 
+
+// 5️⃣ Fungsi untuk update perhitungan berdasarkan data tabel
 function updateCalculations() {
     let totalUnit = document.getElementById("totalUnit").value || 1;
     let biayaProduksi = document.getElementById("biayaProduksi").value || 0;
@@ -99,7 +95,20 @@ function updateCalculations() {
     let hpp = biayaProduksi / totalUnit;
     document.getElementById("hpp").innerText = hpp.toFixed(2);
 
-    let investment = parseFloat(document.getElementById("investmentTotal").value) || 0;
+    let investment = parseFloat(document.getElementById("investment").value) || 0;
     let bep = investment / hpp;
     document.getElementById("bep").innerText = bep.toFixed(2);
+}
+
+// 6️⃣ Fungsi untuk membuka/menutup tabel pop-up
+function openTablePopup(type) {
+    if (type === 'investment') {
+        document.getElementById("investmentPopup").style.display = "block";
+    } else {
+        document.getElementById("operationalPopup").style.display = "block";
+    }
+}
+
+function closeTablePopup(type) {
+    document.getElementById(type).style.display = "none";
 }

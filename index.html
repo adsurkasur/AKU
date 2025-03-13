@@ -22,15 +22,21 @@
             <label>Investment Cost 
                 <button class="info-btn" data-info="Investment Cost adalah biaya awal yang diperlukan untuk memulai usaha.">ⓘ</button>
             </label>
-            <input type="number" id="investment" readonly>
+            <div class="input-with-button">
+                <input type="number" id="investment" readonly>
+                <button class="btn-tambah" onclick="openTablePopup('investment')">Tambahkan</button>
+            </div>
         </div>
         
         <div class="form-group">
             <label>Operational Cost 
                 <button class="info-btn" data-info="Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan usaha.">ⓘ</button>
             </label>
-            <input type="number" id="operational" readonly>
-        </div>
+            <div class="input-with-button">
+                <input type="number" id="operational" readonly>
+                <button class="btn-tambah" onclick="openTablePopup('operational')">Tambahkan</button>
+            </div>
+        </div>        
 
         <div class="form-group">
             <label>Harga Jual per Unit 
@@ -54,10 +60,8 @@
         </div>
 
         <button onclick="hitungAnalisis()" class="btn-hitung">Hitung</button>
-    </div>
 
-    <div class="container">
-        <h2>Hasil Analisis</h2>
+        <h2 class="hasil-analisis">Hasil Analisis</h2>
         <table>
             <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
             <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
@@ -84,12 +88,13 @@
         </div>
     </div>
 
-    <!-- Pop-up Tabel -->
-    <div id="tablePopup" class="popup">
+    <!-- Pop-up Investment Cost -->
+    <div id="investmentPopup" class="popup">
         <div class="popup-content">
-            <span class="close" onclick="closeTablePopup()">&times;</span>
-            <h2 id="popupTitle"></h2>
-            <table id="costTable">
+            <span class="close" onclick="closeTablePopup('investmentPopup')">&times;</span>
+            <h2>Investment Cost</h2>
+            <button class="btn-tambah" onclick="addRow('investmentTable')">Tambah Baris</button>
+            <table id="investmentTable">
                 <thead>
                     <tr>
                         <th>Nama</th>
@@ -100,9 +105,29 @@
                 </thead>
                 <tbody></tbody>
             </table>
-            <button onclick="addRow()">Tambah Baris</button>
         </div>
     </div>
+
+    <!-- Pop-up Operational Cost -->
+    <div id="operationalPopup" class="popup">
+        <div class="popup-content">
+            <span class="close" onclick="closeTablePopup('operationalPopup')">&times;</span>
+            <h2>Operational Cost</h2>
+            <button class="btn-tambah" onclick="addRow('operationalTable')">Tambah Baris</button>
+            <table id="operationalTable">
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kuantitas</th>
+                        <th>Harga</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
 
     <!-- Footer -->
     <footer class="text-center mt-5 text-gray-700">
