@@ -20,8 +20,19 @@
         <h2 class="bold">Input Data</h2>
 
         <div class="form-group">
-            <label>Investment Cost 
-                <button class="info-btn" data-info="Investment Cost adalah biaya awal yang diperlukan untuk memulai usaha.">ⓘ</button>
+            <label>Investment Cost (Biaya Investasi Awal)
+                <button class="info-btn" data-info="
+                📌 <strong>Apa itu Investment Cost?</strong><br><br>
+                Investment Cost adalah biaya awal yang harus dikeluarkan untuk memulai bisnis sebelum bisnis mulai beroperasi dan menghasilkan pendapatan. Biaya ini umumnya termasuk pembelian aset, peralatan, modal kerja, dan perizinan usaha.<br><br>
+                
+                💡 <strong>Contoh Investment Cost:</strong><br>
+                &bull; Pembelian mesin produksi untuk usaha manufaktur.<br>
+                &bull; Renovasi tempat usaha, seperti restoran atau toko.<br>
+                &bull; Biaya pendaftaran dan perizinan usaha.<br>
+                &bull; Pembelian stok awal bahan baku sebelum bisnis berjalan.<br><br>
+                
+                📢 <strong>Catatan:</strong> Investment Cost biasanya dibayarkan satu kali di awal dan tidak termasuk dalam biaya operasional bulanan.
+                ">ⓘ</button>
             </label>
             <div class="input-with-button">
                 <input type="number" id="investment" readonly>
@@ -30,8 +41,19 @@
         </div>
         
         <div class="form-group">
-            <label>Operational Cost 
-                <button class="info-btn" data-info="Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan usaha.">ⓘ</button>
+            <label>Operational Cost per Bulan (Biaya Operasional per Bulan)
+                <button class="info-btn" data-info="
+                📌 <strong>Apa itu Operational Cost?</strong><br><br>
+                Operational Cost adalah biaya yang harus dikeluarkan setiap bulan untuk menjalankan bisnis. Ini mencakup semua pengeluaran rutin yang dibutuhkan agar usaha bisa terus berjalan.<br><br>
+                
+                💡 <strong>Contoh Biaya Operasional:</strong><br>
+                &bull; Gaji karyawan.<br>
+                &bull; Bahan baku untuk produksi.<br>
+                &bull; Listrik, air, dan internet.<br>
+                &bull; Sewa tempat usaha.<br><br>
+                
+                📢 <strong>Catatan:</strong> Biaya operasional berbeda dari investasi awal karena dikeluarkan secara berkala (bulanan).
+                ">ⓘ</button>
             </label>
             <div class="input-with-button">
                 <input type="number" id="operational" readonly>
@@ -41,21 +63,57 @@
 
         <div class="form-group">
             <label>Harga Jual per Unit 
-                <button class="info-btn" data-info="Harga jual per unit adalah harga yang ditetapkan untuk satu produk.">ⓘ</button>
+                <button class="info-btn" data-info="
+                📌 <strong>Apa itu Harga Jual per Unit?</strong><br><br>
+                Harga jual per unit adalah harga yang ditetapkan untuk setiap produk atau jasa yang dijual kepada pelanggan. Harga ini harus ditentukan dengan cermat agar bisnis bisa mendapatkan keuntungan.<br><br>
+                
+                💡 <strong>Cara Menentukan Harga Jual:</strong><br>
+                1️⃣ Hitung biaya produksi per unit.<br>
+                2️⃣ Perhitungkan margin keuntungan yang diinginkan.<br>
+                3️⃣ Bandingkan dengan harga kompetitor.<br><br>
+                
+                💡 <strong>Contoh:</strong> Jika kamu menjual jus buah seharga Rp 20.000 per botol, maka Rp 20.000 adalah harga jual per unit.<br><br>
+                
+                📢 <strong>Catatan:</strong> Jika harga jual lebih kecil dari biaya produksi, maka bisnis akan mengalami kerugian!
+                ">ⓘ</button>
             </label>
             <input type="number" id="price">
         </div>
 
         <div class="form-group">
             <label>Biaya Produksi per Unit 
-                <button class="info-btn" data-info="Biaya produksi per unit adalah biaya yang dikeluarkan untuk membuat satu unit produk.">ⓘ</button>
+                <button class="info-btn" data-info="
+                📌 <strong>Apa itu Biaya Produksi per Unit?</strong><br><br>
+                Biaya produksi per unit adalah biaya yang harus dikeluarkan untuk memproduksi satu unit barang atau jasa. Ini mencakup semua biaya langsung yang terkait dengan produksi.<br><br>
+                
+                💡 <strong>Komponen Biaya Produksi per Unit:</strong><br>
+                &bull; Bahan baku, seperti tepung dan gula untuk produksi roti.<br>
+                &bull; Tenaga kerja langsung.<br>
+                &bull; Biaya listrik atau penggunaan mesin.<br><br>
+                
+                💡 <strong>Contoh:</strong> Jika biaya bahan baku dan produksi satu roti adalah Rp 15.000, maka Rp 15.000 adalah biaya produksi per unit.<br><br>
+                
+                📢 <strong>Catatan:</strong> Pastikan harga jual lebih tinggi dari biaya produksi agar bisnis tidak merugi!
+                ">ⓘ</button>
             </label>
             <input type="number" id="cost">
         </div>
 
         <div class="form-group">
             <label>Volume Penjualan per Bulan 
-                <button class="info-btn" data-info="Volume penjualan per bulan adalah jumlah produk yang dijual setiap bulan.">ⓘ</button>
+                <button class="info-btn" data-info="
+                📌 <strong>Apa itu Volume Penjualan per Bulan?</strong><br><br>
+                Volume penjualan per bulan adalah jumlah unit produk yang diperkirakan terjual dalam satu bulan. Angka ini penting karena menentukan total pendapatan dan profitabilitas usaha.<br><br>
+                
+                💡 <strong>Cara Menentukan Volume Penjualan:</strong><br>
+                &bull; Gunakan data penjualan sebelumnya (jika bisnis sudah berjalan).<br>
+                &bull; Lakukan riset pasar untuk memperkirakan permintaan.<br>
+                &bull; Sesuaikan dengan kapasitas produksi agar bisa memenuhi target penjualan.<br><br>
+                
+                💡 <strong>Contoh:</strong> Jika bisnis kamu menjual 500 botol jus buah setiap bulan, maka volume penjualan per bulan adalah 500 unit.<br><br>
+                
+                📢 <strong>Catatan:</strong> Jika volume penjualan meningkat, maka profit juga meningkat, tetapi pastikan bisnis mampu memenuhi permintaan pasar!
+                ">ⓘ</button>
             </label>
             <input type="number" id="volume">
         </div>
@@ -65,10 +123,12 @@
         <h2 class="hasil-analisis">Hasil Analisis</h2>
         <button onclick="toggleFormatBep()" class="btn-toggle">Ubah Format BEP</button>
         <table>
+            <tr><td>Profit</td><td id="profit">-</td></tr>
             <tr><td>ROI (Return on Investment)</td><td id="roi">-</td></tr>
             <tr><td>BEP (Break Even Point)</td><td id="bep">-</td></tr>
-            <tr><td>HPP (Harga Pokok Produksi)</td><td id="hpp">-</td></tr>
+            <tr><td>HPP (Harga Pokok Produksi) per unit</td><td id="hpp">-</td></tr>
             <tr><td>Payback Period</td><td id="pp">-</td></tr>
+            <tr><td>Profit Margin</td><td id="profit-margin">-</td></tr>
         </table>
     </div>
 
@@ -166,17 +226,33 @@ function hitungAnalisis() {
     let cost = getValue("cost");
     let volume = getValue("volume");
 
+    // Validasi input: tidak boleh kosong atau negatif
+    if (investment <= 0 || operational < 0 || price <= 0 || cost < 0 || volume < 0) {
+        alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif atau kosong.");
+        return;
+    }
+
+    // Cek jika harga jual lebih kecil dari biaya produksi
+    if (price < cost) {
+        alert("Harga jual lebih kecil dari biaya produksi! Bisnis akan rugi.");
+        return;
+    }
+
     let profit = (price - cost) * volume - operational;
+    let revenue = price * volume; // Pendapatan
+    let profitMargin = revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
     let roi = investment > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
     let bepUnit = price > cost ? (investment / (price - cost)).toFixed(2) : "Tidak valid";
     let bepRupiah = price > cost ? formatRupiah((investment / (price - cost)) * price) : "Tidak valid";
     let hpp = volume > 0 ? formatRupiah((cost * volume + operational) / volume) : "Tidak valid";
     let pp = profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
+    setText("profit", formatRupiah(profit));
     setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
     setText("hpp", hpp);
     setText("roi", roi);
     setText("pp", pp);
+    setText("profit-margin", profitMargin);
 }
 
 // Fungsi untuk format Rupiah
@@ -250,14 +326,35 @@ function closeTablePopup(type) {
     }
 }
 
-// Menutup pop-up jika klik di luar kontennya
-document.querySelectorAll(".popup").forEach(popup => {
+// Menutup pop-up jika klik di luar kontennya (termasuk popup info)
+document.querySelectorAll(".popup, #popupInfo").forEach(popup => {
     popup.addEventListener("click", function(event) {
         if (event.target === this) {
-            this.style.display = "none";
+            this.classList.add("hidden"); // Menyembunyikan popup
             document.body.style.overflow = "auto";
         }
     });
+});
+
+// Event listener untuk tombol "info"
+document.querySelectorAll(".info-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        let infoText = this.getAttribute("data-info");
+        showPopupInfo(infoText);
+    });
+});
+
+// Fungsi untuk menampilkan pop-up info
+function showPopupInfo(text) {
+    let popup = document.getElementById("popupInfo");
+    let popupText = document.getElementById("popupText");
+    popupText.innerHTML = text;
+    popup.classList.remove("hidden");
+}
+
+// Event listener untuk menutup pop-up
+document.getElementById("closePopup").addEventListener("click", function () {
+    document.getElementById("popupInfo").classList.add("hidden");
 });
 
 
@@ -490,7 +587,7 @@ td {
 #popupInfo div {
     position: relative;
     max-width: 400px;
-    text-align: center;
+    text-align: left;
 }
 
 #popupInfo button {

@@ -137,7 +137,7 @@ document.querySelectorAll(".info-btn").forEach(button => {
 function showPopupInfo(text) {
     let popup = document.getElementById("popupInfo");
     let popupText = document.getElementById("popupText");
-    popupText.textContent = text;
+    popupText.innerHTML = text;
     popup.classList.remove("hidden");
 }
 
