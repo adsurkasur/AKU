@@ -15,17 +15,33 @@ function hitungAnalisis() {
     let cost = getValue("cost");
     let volume = getValue("volume");
 
+    // Validasi input: tidak boleh kosong atau negatif
+    if (investment <= 0 || operational < 0 || price <= 0 || cost < 0 || volume < 0) {
+        alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif atau kosong.");
+        return;
+    }
+
+    // Cek jika harga jual lebih kecil dari biaya produksi
+    if (price < cost) {
+        alert("Harga jual lebih kecil dari biaya produksi! Bisnis akan rugi.");
+        return;
+    }
+
     let profit = (price - cost) * volume - operational;
+    let revenue = price * volume; // Pendapatan
+    let profitMargin = revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
     let roi = investment > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
     let bepUnit = price > cost ? (investment / (price - cost)).toFixed(2) : "Tidak valid";
     let bepRupiah = price > cost ? formatRupiah((investment / (price - cost)) * price) : "Tidak valid";
     let hpp = volume > 0 ? formatRupiah((cost * volume + operational) / volume) : "Tidak valid";
     let pp = profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
+    setText("profit", formatRupiah(profit));
     setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
     setText("hpp", hpp);
     setText("roi", roi);
     setText("pp", pp);
+    setText("profit-margin", profitMargin);
 }
 
 // Fungsi untuk format Rupiah
@@ -99,12 +115,33 @@ function closeTablePopup(type) {
     }
 }
 
-// Menutup pop-up jika klik di luar kontennya
-document.querySelectorAll(".popup").forEach(popup => {
+// Menutup pop-up jika klik di luar kontennya (termasuk popup info)
+document.querySelectorAll(".popup, #popupInfo").forEach(popup => {
     popup.addEventListener("click", function(event) {
         if (event.target === this) {
-            this.style.display = "none";
+            this.classList.add("hidden"); // Menyembunyikan popup
             document.body.style.overflow = "auto";
         }
     });
+});
+
+// Event listener untuk tombol "info"
+document.querySelectorAll(".info-btn").forEach(button => {
+    button.addEventListener("click", function () {
+        let infoText = this.getAttribute("data-info");
+        showPopupInfo(infoText);
+    });
+});
+
+// Fungsi untuk menampilkan pop-up info
+function showPopupInfo(text) {
+    let popup = document.getElementById("popupInfo");
+    let popupText = document.getElementById("popupText");
+    popupText.textContent = text;
+    popup.classList.remove("hidden");
+}
+
+// Event listener untuk menutup pop-up
+document.getElementById("closePopup").addEventListener("click", function () {
+    document.getElementById("popupInfo").classList.add("hidden");
 });
