@@ -17,6 +17,7 @@ header {
 .container {
     max-width: 500px;
     margin: auto;
+    margin-top: 10px;
     background: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
@@ -265,6 +266,7 @@ td {
 
 footer {
     margin-top: 20px;
+    margin-bottom: 10px;
     font-size: 0.9rem;
 }
 

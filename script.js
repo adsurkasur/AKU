@@ -11,34 +11,58 @@ function toggleFormatBep() {
 function hitungAnalisis() {
     let investment = getValue("investment");
     let operational = getValue("operational");
-    let price = getValue("price");
-    let cost = getValue("cost");
+    let cost = getValue("biayaProduksi");
     let volume = getValue("volume");
+    let markup = parseFloat(document.getElementById("markup").value);
 
     // Validasi input: tidak boleh kosong atau negatif
-    if (investment <= 0 || operational < 0 || price <= 0 || cost < 0 || volume < 0) {
+    if (
+        isNaN(investment) || isNaN(operational) || isNaN(cost) || 
+        isNaN(volume) || isNaN(markup) || 
+        investment <= 0 || operational < 0 ||
+        cost < 0 || volume <= 0 || markup < 0
+    ) {
         alert("Harap masukkan angka yang valid! Nilai tidak boleh negatif atau kosong.");
         return;
     }
 
-    // Cek jika harga jual lebih kecil dari biaya produksi
-    if (price < cost) {
-        alert("Harga jual lebih kecil dari biaya produksi! Bisnis akan rugi.");
+    // Hitung Harga Pokok Produksi (HPP)
+    let hpp = (cost * volume + operational) / volume;
+
+    // Hitung Harga Jual berdasarkan markup
+    let hargaJual = hpp * (1 + (markup / 100));
+
+    // Pastikan Harga Jual tidak lebih kecil dari HPP
+    if (hargaJual < hpp) {
+        alert("Harga jual lebih kecil dari HPP! Bisnis akan rugi.");
         return;
     }
 
-    let profit = (price - cost) * volume - operational;
-    let revenue = price * volume; // Pendapatan
+    // Hitung Profit
+    let profit = (hargaJual - hpp) * volume;
+
+    // Hitung Revenue (Pendapatan)
+    let revenue = hargaJual * volume; 
+
+    // Hitung Profit Margin
     let profitMargin = revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
+
+    // Hitung ROI (Return on Investment)
     let roi = investment > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
-    let bepUnit = price > cost ? (investment / (price - cost)).toFixed(2) : "Tidak valid";
-    let bepRupiah = price > cost ? formatRupiah((investment / (price - cost)) * price) : "Tidak valid";
-    let hpp = volume > 0 ? formatRupiah((cost * volume + operational) / volume) : "Tidak valid";
+
+    // Hitung Break Even Point (BEP)
+    let bepUnit = hargaJual > hpp ? (investment / (hargaJual - hpp)).toFixed(2) : "Tidak valid";
+    let bepRupiah = hargaJual > hpp ? formatRupiah(investment / (hargaJual - hpp) * hargaJual) : "Tidak valid";
+
+    // Hitung Payback Period (PP)
     let pp = profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
+    // Tampilkan hasil perhitungan
+    setText("hargaJual", formatRupiah(hargaJual));
+    setText("revenue", formatRupiah(revenue));
     setText("profit", formatRupiah(profit));
     setText("bep", isBepRupiah ? bepRupiah : `${bepUnit} unit`);
-    setText("hpp", hpp);
+    setText("hpp", formatRupiah(hpp));
     setText("roi", roi);
     setText("pp", pp);
     setText("profit-margin", profitMargin);
@@ -116,13 +140,24 @@ function closeTablePopup(type) {
 }
 
 // Menutup pop-up jika klik di luar kontennya (termasuk popup info)
-document.querySelectorAll(".popup, #popupInfo").forEach(popup => {
+document.querySelectorAll(".popup, #popupInfo, #investmentPopup, #operationalPopup").forEach(popup => {
     popup.addEventListener("click", function(event) {
         if (event.target === this) {
-            this.classList.add("hidden"); // Menyembunyikan popup
+            this.style.display = "none"; // Menyembunyikan popup
             document.body.style.overflow = "auto";
         }
     });
+});
+
+// Menutup pop-up jika tombol 'Esc' ditekan
+document.addEventListener("keydown", function(event) {
+    if (event.key === "Escape") {
+        document.querySelectorAll(".popup, #popupInfo, #investmentPopup, #operationalPopup").forEach(popup => {
+            popup.style.display = "none"; // Menyembunyikan popup
+            popup.classList.add("hidden"); // Ensure the hidden class is added
+        });
+        document.body.style.overflow = "auto";
+    }
 });
 
 // Event listener untuk tombol "info"
@@ -139,9 +174,12 @@ function showPopupInfo(text) {
     let popupText = document.getElementById("popupText");
     popupText.innerHTML = text;
     popup.classList.remove("hidden");
+    popup.style.display = "flex"; // Ensure the popup is displayed
 }
 
 // Event listener untuk menutup pop-up
 document.getElementById("closePopup").addEventListener("click", function () {
-    document.getElementById("popupInfo").classList.add("hidden");
+    let popup = document.getElementById("popupInfo");
+    popup.classList.add("hidden");
+    popup.style.display = "none"; // Ensure the popup is hidden
 });
