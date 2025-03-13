@@ -11,7 +11,7 @@ function toggleFormatBep() {
 function hitungAnalisis() {
     let investment = getValue("investment");
     let operational = getValue("operational");
-    let cost = getValue("biayaProduksi"); // Perbaikan variabel
+    let cost = getValue("biayaProduksi");
     let volume = getValue("volume");
     let markup = parseFloat(document.getElementById("markup").value);
 
@@ -38,17 +38,13 @@ function hitungAnalisis() {
         return;
     }
 
-    // Hitung Harga Pokok Produksi (HPP)
+    // **Perbaikan HPP**
     let hpp, metode;
-
-    // **Logika Otomatis**
     if (cost > 0) {
-        // **Gunakan pendekatan biaya produksi**
-        hpp = (cost * volume + operational) / volume;
+        hpp = (cost * volume + operational) / (volume > 0 ? volume : 1); 
         metode = "Menggunakan perhitungan berdasarkan biaya produksi per unit & volume.";
-    } else if (investment > 0) {
-        // **Gunakan pendekatan investment cost** (volume tidak dipakai)
-        hpp = (investment + operational); // Hanya biaya total
+    } else if (investment > 0 && volume > 0) {
+        hpp = (investment + operational) / volume;
         metode = "Menggunakan perhitungan berdasarkan investment cost.";
     } else {
         alert("Harap isi biaya produksi atau investment cost!");
@@ -59,27 +55,41 @@ function hitungAnalisis() {
     let hargaJual = hpp * (1 + (markup / 100));
 
     // Pastikan Harga Jual tidak lebih kecil dari HPP
-    if (hargaJual < hpp) {
-        alert("Harga jual lebih kecil dari HPP! Bisnis akan rugi.");
+    if (hargaJual <= hpp) {
+        alert("Harga jual harus lebih tinggi dari HPP untuk menghitung BEP!");
         return;
     }
+    
+    // **Perbaikan Profit**
+    let profit = volume > 0 ? (hargaJual - hpp) * volume : 0;
+    let roi, pp;
+    if (profit <= 0) {
+        roi = "Tidak valid";
+        pp = "Tidak valid";
+    } else {
+        roi = (investment > 0) ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
+        pp = (investment > 0) ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
+    }
 
-    // **Jika volume tersedia, hitung Revenue & Profit**
-    let profit = volume > 0 ? (hargaJual - hpp) * volume : "Tidak tersedia";
+    // **Perbaikan Payback Period**
+    if (!isNaN(pp) && pp > 12) {
+        let tahun = (pp / 12).toFixed(2);
+        pp = `${tahun} tahun`;
+    }
+
+    // **Perbaikan BEP**
+    let bepUnit, bepRupiah;
+    if (hargaJual > hpp && investment > 0) {
+        bepUnit = (investment / (hargaJual - hpp)).toFixed(2);
+        bepRupiah = formatRupiah(investment / (hargaJual - hpp) * hargaJual);
+    } else {
+        bepUnit = "Tidak valid";
+        bepRupiah = "Tidak valid";
+    }
+
+    // Hitung Revenue & Profit Margin
     let revenue = volume > 0 ? hargaJual * volume : "Tidak tersedia"; 
-
-    // Hitung Profit Margin
     let profitMargin = volume > 0 && revenue > 0 ? ((profit / revenue) * 100).toFixed(2) + "%" : "Tidak valid";
-
-    // Hitung ROI (Return on Investment)
-    let roi = investment > 0 && volume > 0 ? (profit / investment * 100).toFixed(2) + "%" : "Tidak valid";
-
-    // Hitung Break Even Point (BEP) hanya jika volume tersedia
-    let bepUnit = volume > 0 && hargaJual > hpp ? (investment / (hargaJual - hpp)).toFixed(2) : "Tidak valid";
-    let bepRupiah = volume > 0 && hargaJual > hpp ? formatRupiah(investment / (hargaJual - hpp) * hargaJual) : "Tidak valid";
-
-    // Hitung Payback Period (PP) hanya jika profit tersedia
-    let pp = volume > 0 && profit > 0 ? (investment / profit).toFixed(2) + " bulan" : "Tidak valid";
 
     // Tampilkan hasil perhitungan
     setText("hargaJual", formatRupiah(hargaJual));
@@ -232,7 +242,7 @@ function exportToXlsx() {
     let ws = XLSX.utils.aoa_to_sheet(ws_data);
 
     // Add formulas to the worksheet
-    ws['B7'].f = `B3 + B4 / B5`; // HPP per unit
+    ws['B7'].f = `(B3 + B4) / B5`; // HPP per unit
     ws['B8'].f = `B7 * (1 + B6 / 100)`; // Harga Jual per Unit
     ws['B9'].f = `B8 * B5`; // Revenue
     ws['B10'].f = `(B8 - B7) * B5`; // Profit
